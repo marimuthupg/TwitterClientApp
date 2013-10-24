@@ -123,7 +123,7 @@ public class TimeLineActivity extends Activity {
 			tweet = tweets.get(tweets.size() - 1);
 
 			if(tweet != null) {
-				max_id = Long.toString(tweet.getId());
+				max_id = Long.toString(tweet.getId() - 1);
 			}
 		}
 		
