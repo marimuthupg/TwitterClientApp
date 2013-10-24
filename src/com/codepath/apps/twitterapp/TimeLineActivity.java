@@ -36,14 +36,14 @@ public class TimeLineActivity extends Activity {
 		adapter = new TweetsAdapter(getBaseContext(), tweets);
 		lvTweets.setAdapter(adapter);
 
-		loadTweetsFromRemote();
+		loadTweetsFromRemote(false);
 
 		lvTweets.setOnScrollListener(new ContinousScrollListener() {
 
 			@Override
 			public void onLoadMore(int page, int totalItemsCount) {
 				Toast.makeText(getApplicationContext(), "Loading...", Toast.LENGTH_SHORT).show();
-				loadTweetsFromRemote();
+				loadTweetsFromRemote(false);
 			}
 		});
 	}
@@ -54,6 +54,12 @@ public class TimeLineActivity extends Activity {
 		// new intent to compose activity
 		Intent i = new Intent(this, ComposeTweetActivity.class);
 		startActivityForResult(i, 0);
+	}
+	
+	public void onRefreshAction(MenuItem mi) {
+		
+		Log.d("DEBUG", "On refresh action");
+		loadTweetsFromRemote(true);
 	}
 	
 	@Override
@@ -89,34 +95,10 @@ public class TimeLineActivity extends Activity {
 
 	
 	
-	public void loadTweetsFromRemote() {
+	public void loadTweetsFromRemote(final boolean refresh) {
 		String since_id = null;
 		String max_id = null;
 
-		if(tweets != null && tweets.size()>0) {
-			Tweet tweet = tweets.get(0);
-			if(tweet != null) {
-				since_id = Long.toString(tweet.getId());
-			}
-
-			tweet = tweets.get(tweets.size() - 1);
-
-			if(tweet != null) {
-				max_id = Long.toString(tweet.getId());
-			}
-		}
-		
-		TwitterClientApp.getRestClient().getTwitterHomeTimeLine("25", max_id, since_id, new JsonHttpResponseHandler(){
-
-			@Override
-			public void onSuccess(JSONArray jsonTweets) {
-				tweets.addAll(Tweet.fromJson(jsonTweets));
-				adapter.notifyDataSetChanged();
-				Log.d("DEBUG", jsonTweets.toString());
-			}
-
-		});
-		
 		if (this.currentUser == null) {
 			TwitterClientApp.getRestClient().verifyCredentials(new JsonHttpResponseHandler() {
 				@Override
@@ -131,5 +113,36 @@ public class TimeLineActivity extends Activity {
 				}
 			});
 		}
+		
+		if(tweets != null && tweets.size()>0) {
+			Tweet tweet = tweets.get(0);
+			if(refresh && tweet != null) {
+				since_id = Long.toString(tweet.getId());
+			}
+
+			tweet = tweets.get(tweets.size() - 1);
+
+			if(tweet != null) {
+				max_id = Long.toString(tweet.getId());
+			}
+		}
+		
+		
+		
+		TwitterClientApp.getRestClient().getTwitterHomeTimeLine("25", max_id, since_id, new JsonHttpResponseHandler(){
+
+			@Override
+			public void onSuccess(JSONArray jsonTweets) {
+				if(refresh) {
+					tweets.addAll(0,Tweet.fromJson(jsonTweets));
+				} else {
+					tweets.addAll(Tweet.fromJson(jsonTweets));
+				}
+				adapter.notifyDataSetChanged();
+			}
+
+		});
+		
+
 	}
 }

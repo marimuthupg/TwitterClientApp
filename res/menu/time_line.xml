@@ -13,5 +13,6 @@
         android:onClick="onComposeAction"
         android:title="@string/compose"
         android:icon="@drawable/compose" />
+        <item android:id="@+id/refresh" android:title="@string/refresh" android:showAsAction="ifRoom|withText" android:onClick="onRefreshAction"></item>
     
 </menu>

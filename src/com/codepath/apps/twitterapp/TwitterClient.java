@@ -4,6 +4,7 @@ import org.scribe.builder.api.Api;
 import org.scribe.builder.api.TwitterApi;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.codepath.oauth.OAuthBaseClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
@@ -46,6 +47,7 @@ public class TwitterClient extends OAuthBaseClient {
     		params.put("since_id", since_id);
     	}
     	
+    	Log.i("DEBUG", "rest call "+max_id+","+since_id); 
     	client.get(url, null,handler);
     }
     
